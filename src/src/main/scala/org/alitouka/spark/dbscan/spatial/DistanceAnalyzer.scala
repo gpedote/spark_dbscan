@@ -7,7 +7,6 @@ import org.apache.commons.math3.ml.distance.DistanceMeasure
 import org.alitouka.spark.dbscan._
 import scala.collection.mutable.ListBuffer
 import org.alitouka.spark.dbscan.util.debug.DebugHelper
-import org.apache.spark.Logging
 import scala.collection.mutable
 
 
@@ -15,8 +14,7 @@ private [dbscan] class DistanceAnalyzer (
   private val settings: DbscanSettings,
   private val partitioningSettings: PartitioningSettings = new PartitioningSettings ())
   extends Serializable
-  with DistanceCalculation
-  with Logging {
+  with DistanceCalculation {
 
 
   implicit val distanceMeasure: DistanceMeasure = settings.distanceMeasure

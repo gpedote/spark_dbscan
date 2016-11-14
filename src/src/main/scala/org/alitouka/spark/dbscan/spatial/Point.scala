@@ -10,6 +10,7 @@ import org.alitouka.spark.dbscan._
   * @param distanceFromOrigin Distance of this point from origin
   * @param precomputedNumberOfNeighbors Number of point's neighbors
   * @param clusterId ID of a cluster which this points belongs to
+  * @param pointLabel Point's label
   */
 class Point (
     val coordinates: PointCoordinates,
@@ -17,38 +18,46 @@ class Point (
     val boxId: BoxId = 0,
     val distanceFromOrigin: Double = 0.0,
     val precomputedNumberOfNeighbors: Long = 0,
-    val clusterId: ClusterId = DbscanModel.UndefinedCluster) extends Serializable with Ordered[Point] {
+    val clusterId: ClusterId = DbscanModel.UndefinedCluster,
+    val pointLabel: String = null) extends Serializable with Ordered[Point] {
 
   def this (coords: Array[Double]) = this (new PointCoordinates (coords))
 
+  def this (coords: Array[Double], label : String) = this (new PointCoordinates (coords), pointLabel = label)
+
   def this (pt: Point) = this (pt.coordinates, pt.pointId, pt.boxId, pt.distanceFromOrigin,
-      pt.precomputedNumberOfNeighbors,  pt.clusterId)
+      pt.precomputedNumberOfNeighbors,  pt.clusterId, pt.pointLabel)
 
   def this (coords: Double*) = this (new PointCoordinates (coords.toArray))
 
   def withPointId (newId: PointId) = {
     new Point (this.coordinates, newId, this.boxId, this.distanceFromOrigin,
-        this.precomputedNumberOfNeighbors,  this.clusterId)
+        this.precomputedNumberOfNeighbors,  this.clusterId, this.pointLabel)
   }
 
   def withBoxId (newBoxId: BoxId) = {
     new Point (this.coordinates, this.pointId, newBoxId, this.distanceFromOrigin,
-        this.precomputedNumberOfNeighbors,  this.clusterId)
+        this.precomputedNumberOfNeighbors,  this.clusterId, this.pointLabel)
   }
 
   def withDistanceFromOrigin (newDistance: Double) = {
     new Point (this.coordinates, this.pointId, this.boxId, newDistance,
-        this.precomputedNumberOfNeighbors,  this.clusterId)
+        this.precomputedNumberOfNeighbors,  this.clusterId, this.pointLabel)
   }
 
   def withNumberOfNeighbors (newNumber: Long) = {
     new Point (this.coordinates, this.pointId, this.boxId, this.distanceFromOrigin, newNumber,
-       this.clusterId)
+       this.clusterId, this.pointLabel)
   }
 
   def withClusterId (newId: ClusterId) = {
     new Point (this.coordinates, this.pointId, this.boxId, this.distanceFromOrigin, this.precomputedNumberOfNeighbors,
-      newId)
+      newId, this.pointLabel)
+  }
+
+  def withPointLabel (newLabel: String) = {
+    new Point (this.coordinates, this.pointId, this.boxId, this.distanceFromOrigin, this.precomputedNumberOfNeighbors,
+       this.clusterId, newLabel)
   }
 
   override def equals (that: Any): Boolean = {

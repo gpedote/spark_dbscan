@@ -5,6 +5,7 @@ import org.alitouka.spark.dbscan.util.io.IOHelper
 import org.alitouka.spark.dbscan.util.commandLine._
 import org.alitouka.spark.dbscan.spatial.rdd.PartitioningSettings
 import org.alitouka.spark.dbscan.util.debug.{DebugHelper, Clock}
+import org.apache.log4j.Logger
 
 /** A driver program which runs DBSCAN clustering algorithm
  *
@@ -62,8 +63,8 @@ object DbscanDriver {
 
       val partitioningSettings = new PartitioningSettings (numberOfPointsInBox = argsParser.args.numberOfPoints)
 
-      val clusteringResult = Dbscan.train(data, settings, partitioningSettings)
-      IOHelper.saveClusteringResult(clusteringResult, argsParser.args.outputPath)
+      val model = Dbscan.train(data, settings, partitioningSettings)
+      IOHelper.saveLabelledClusteringResult(model, argsParser.args.outputPath)
 
       clock.logTimeSinceStart("Clustering")
     }

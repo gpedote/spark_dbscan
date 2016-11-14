@@ -11,7 +11,7 @@ import org.alitouka.spark.dbscan.spatial.Point
   */
 object IOHelper {
 
-  /** Reads a dataset from a CSV file. That file should contain double values separated by commas
+  /** Reads a dataset from a CSV file.
     *
     * @param sc A SparkContext into which the data should be loaded
     * @param path A path to the CSV file
@@ -22,7 +22,7 @@ object IOHelper {
 
     rawData.map (
       line => {
-        new Point (line.split(separator).map( _.toDouble ))
+        new Point (line.split(inputSeparator).drop(1).map( _.toDouble ), line.split(inputSeparator)(0))
       }
     )
   }
@@ -36,17 +36,34 @@ object IOHelper {
     *                   partXXXX files
     */
   def saveClusteringResult (model: DbscanModel, outputPath: String) {
-
     model.allPoints.map ( pt => {
+      pt.coordinates.mkString(ouputSeparatorCSV) + ouputSeparatorCSV + pt.clusterId
+    } ).saveAsTextFile(outputPath)
+  }
 
-      pt.coordinates.mkString(separator) + separator + pt.clusterId
+  /** Saves clustering result into a TSV file. The resulting file will contain the labels of
+    * contained in the input file, with a cluster ID appended to each record.
+    * The order of records is not guaranteed to be the same as in the
+    * input file
+    *
+    * @param model A [[org.alitouka.spark.dbscan.DbscanModel]] obtained from Dbscan.train method
+    * @param outputPath Path to a folder where results should be saved. The folder will contain multiple
+    *                   partXXXX files
+    */
+  def saveLabelledClusteringResult (model: DbscanModel, outputPath: String) {
+    model.allPoints.map ( pt => {
+      (pt.pointLabel, pt.clusterId)
+    } ).sortByKey().map( pt => {
+      (pt._1 + ouputSeparatorTSV + pt._2)
     } ).saveAsTextFile(outputPath)
   }
 
   private [dbscan] def saveTriples (data: RDD[(Double, Double, Long)], outputPath: String) {
-    data.map ( x => x._1 + separator + x._2 + separator + x._3 ).saveAsTextFile(outputPath)
+    data.map ( x => x._1 + ouputSeparatorCSV + x._2 + ouputSeparatorCSV + x._3 ).saveAsTextFile(outputPath)
   }
 
-  private def separator = ","
+  private def inputSeparator = "\\s+|,"
+  private def ouputSeparatorCSV = ","
+  private def ouputSeparatorTSV = "\t"
 
 }
